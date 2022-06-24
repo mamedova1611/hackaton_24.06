@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Бизнес" %}{% endblock %}
+{% block body %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% trans "Сохранить" %}</button>
+    </form>
+{#    <form method="post" action="{% url 'business_del' business.id %}">#}
+{#    {% csrf_token %}#}
+{#    <button type="submit">Удалить</button>#}
+{#    </form>#}
+{% endblock %}

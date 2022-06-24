@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Мои бизнесы" %}{% endblock %}
+{% block body %}
+    {% if businesses %}
+    <ul>
+    {% for b in businesses %}
+    <li>
+        <ul>
+            <li><a href="{% url 'business_detail' b.id %}">{{ b.name }}</a></li>
+            <li>{{ b.сategory.name }}</li>
+        </ul>
+    </li>
+    {% endfor %}
+    </ul>
+        {% else %}
+        У вас пока нет бизнеса
+    {% endif %}
+
+    <form action="{% url 'business_create' %}">
+        <button>{% trans "Добавить бизнес" %}</button>
+    </form>
+{% endblock %}

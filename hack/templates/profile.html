@@ -7,11 +7,6 @@
     <p>{% trans "ТЕЛЕФОН" %} - {{ user.phone }}</p>
     <p>{% trans "ГОРОД" %} - {{ user.city }}</p>
     <p>{% trans "ГОРОД" %} - {{ user.email }}</p>
-    <a href="">Мои бизнесы</a>
-    <form>
-        <button>{% trans "Добавить" %}</button>
-    </form>
-    <form>
-        <button>{% trans "Добавить" %}</button>
-    </form>
+    <button class="btn" type="button" ><a href="{% url 'profile_edit' user.id %}">Редактировать профиль</a> </button>
+    <a href="{% url 'businesses_list' user.id %}">Мои бизнесы</a>
 {% endblock %}

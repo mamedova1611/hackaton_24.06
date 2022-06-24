@@ -6,17 +6,24 @@ from django.utils.translation import gettext_lazy as _
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 class Business(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
-
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category',
+                                 verbose_name=_('категория'))
+    def __str__(self):
+        return f"{self.name}"
 
 class Service(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_service',
                                  verbose_name=_('бизнес/деятельность'))
-
+    def __str__(self):
+        return f"{self.name}, {self.price}"
 
 class Expense(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
@@ -25,6 +32,8 @@ class Expense(models.Model):
                                  verbose_name=_('бизнес/деятельность'))
     date = models.DateField(verbose_name=_('дата'))
 
+    def __str__(self):
+        return f"{self.name}, {self.price}, {self.date}"
 
 class Plan(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_plan',
@@ -33,6 +42,8 @@ class Plan(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service', verbose_name=_('услуга'))
     datetime = models.DateTimeField(verbose_name=_('дата'))
 
+    def __str__(self):
+        return f"{self.event}, {self.service}, {self.datetime}"
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('пользователь'))
