@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Логин" %}{% endblock %}
+
+{% block body %}
+    <form method="post">
+      <h1>{% trans "Войти в личный кабинет" %}</h1>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="submit">{% trans "Войти" %}</button>
+   </form>
+{% endblock %}

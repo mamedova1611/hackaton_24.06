@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Профиль" %}{% endblock %}
+
+{% block body %}
+    <p>{% trans "ИМЯ" %} - {{ user.user.username }}</p>
+    <p>{% trans "ТЕЛЕФОН" %} - {{ user.phone }}</p>
+    <p>{% trans "ГОРОД" %} - {{ user.city }}</p>
+    <p>{% trans "ГОРОД" %} - {{ user.email }}</p>
+    <a href="">Мои бизнесы</a>
+    <form>
+        <button>{% trans "Добавить" %}</button>
+    </form>
+    <form>
+        <button>{% trans "Добавить" %}</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Логаут" %}{% endblock %}
+
+{% block body %}
+<h2>{% trans "Работа завершена !" %}</h2>
+
+<a href="{% url 'login'%}">{% trans "Нажмите здесь, чтобы вернуться к авторизации" %}</a>
+<br>
+<a href="{% url 'shop_list'%}"> {% trans "На главную" %}</a>
+{% endblock %}
