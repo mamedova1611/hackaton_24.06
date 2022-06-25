@@ -10,7 +10,6 @@
  </style>
 
 <div class="clearfix">
-    <span class="left m-2" style="font-size: 20px; color:#1e213d; background-color: #fadbc8; border-radius: 10px;"> Это ты, <b>{{ request.user }}</b>? До сих пор <b>быдлокодишь</b>?</span>
     <a class="btn btn-info right" href="{% url 'logout' %}"> ВЫПУСТИ МЕНЯ </a>
 	<a class="btn btn-info right mr-2" href="{% url 'calendar' %}?{{ next_month }} "> Вперёд >> </a>
     <a class="btn btn-info right mr-2" href="{% url 'calendar' %}?{{ prev_month }}"> << Назад </a>

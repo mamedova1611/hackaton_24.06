@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import UpdateView, CreateView, ListView, DetailView
-
+from calendar import HTMLCalendar
+from .models import *
 from .forms import *
 
 
@@ -75,7 +76,17 @@ class BusinessDetailView(DetailView):
         business = Business.objects.get(pk=pk)
         service_form = ServiceForm(request.POST)
         expense_form = ExpenseForm(request.POST)
-        if service_form.is_valid() or expense_form.is_valid():
+        if not service_form.is_valid() and expense_form.is_valid():
+            form = expense_form.save(commit=False)
+            form.business = business
+            form.save()
+            return HttpResponseRedirect(reverse('business_detail', args=[pk]))
+        if service_form.is_valid() and not expense_form.is_valid():
+            form = service_form.save(commit=False)
+            form.business = business
+            form.save()
+            return HttpResponseRedirect(reverse('business_detail', args=[pk]))
+        if expense_form.is_valid() and service_form.is_valid():
             service = service_form.save(commit=False)
             service.business = business
             service.save()
@@ -83,7 +94,6 @@ class BusinessDetailView(DetailView):
             expense.business = business
             expense.save()
             return HttpResponseRedirect(reverse('business_detail', args=[pk]))
-
         return render(request, 'businesses.html', {'service_form': service_form, 'expense_form': expense_form})
 
 
@@ -95,6 +105,24 @@ class BusinessCreateView(CreateView):
     def get_success_url(self):
         return self.request.META.get('HTTP_REFERER')
 
+    def get(self, request, *args, **kwargs):
+        expence = Expense.objects.create(
+            expense_name='НАЛОГ', expense_price=3063, date=datetime.today()
+        )
+        return render(request, 'profile.html', {'user': request.user})
+
+def create_business(request):
+    if request.method == 'POST':
+        form = BusinessForm(request.POST)
+        if form.is_valid():
+            business = form.save()
+            Expense.objects.create(
+                expense_name='НАЛОГ', expense_price=3063, date=datetime.today(), business=business
+            )
+            return render(request, 'profile.html', {'user': request.user})
+    else:
+        form = BusinessForm()
+    return render(request, 'business_create.html', {'form': form})
 
 class BusinessEditView(UpdateView):
     model = Business
@@ -109,8 +137,7 @@ class BusinessEditView(UpdateView):
 #     def post(self, request, pk):
 #         business = Business.objects.filter(pk=pk).delete()
 #         return render(request, 'profile.html', {'user': self.request.user})
-from calendar import HTMLCalendar
-from .models import Event
+
 
 
 class Calendar(HTMLCalendar):
@@ -194,6 +221,7 @@ class CalendarView(LoginRequiredMixin, generic.ListView):
         context['next_month'] = next_month(d)
         return context
 
+
 def create_event(request):
     form = EventForm(request.POST or None)
     if form.is_valid():
@@ -203,7 +231,8 @@ def create_event(request):
         start_time = form.cleaned_data['start_time']
         end_time = form.cleaned_data['end_time']
         event = form.save(commit=False)
-        event.user = request.user
+        user = Profile.objects.get(user=request.user)
+        event.user = user
         event.business = business
         event.service = service
         event.title = title

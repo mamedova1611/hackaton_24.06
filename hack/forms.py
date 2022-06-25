@@ -17,16 +17,30 @@ class ProfileForm(UserCreationForm):
         model = User
         fields = ['username', 'phone', 'city', 'email', 'password1', 'password2']
 
+class BusinessForm(ModelForm):
+    class Meta:
+        model= Business
+        fields = '__all__'
 
 class ServiceForm(ModelForm):
     class Meta:
         model = Service
-        fields = ['name', 'price']
+        fields = ['service_name', 'service_price']
 
 class ExpenseForm(ModelForm):
+
     class Meta:
         model = Expense
-        fields = ['name','price', 'date']
+
+        widgets = {
+            'date': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%d'),
+        }
+        exclude = ['business']
+
+    def __init__(self, *args, **kwargs):
+        super(ExpenseForm, self).__init__(*args, **kwargs)
+
+        self.fields['date'].input_formats = ('%Y-%m-%d',)
 
 class EventForm(ModelForm):
     class Meta:

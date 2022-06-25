@@ -27,19 +27,19 @@ class Profile(models.Model):
     business = models.ForeignKey(Business, null=True, on_delete=models.CASCADE, related_name='business_profile',
                                  verbose_name=_('бизнес/деятельность'))
 class Service(models.Model):
-    name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
+    service_name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
+    service_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_service',
                                  verbose_name=_('бизнес/деятельность'))
     def __str__(self):
         return f"{self.name}, {self.price}"
 
 class Expense(models.Model):
-    name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
+    expense_name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
+    expense_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_expense',
                                  verbose_name=_('бизнес/деятельность'))
-    date = models.DateField(verbose_name=_('дата'))
+    date = models.DateTimeField(verbose_name=_('дата'))
 
     def __str__(self):
         return f"{self.name}, {self.price}, {self.date}"
@@ -61,7 +61,7 @@ class Event(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='event_business',
                                  verbose_name=_('бизнес/деятельность'))
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='event_service', verbose_name=_('услуга'))
-    expense = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='event_expence', verbose_name=_('платеж'))
+    expense = models.ForeignKey(Expense, on_delete=models.CASCADE,null=True, related_name='event_expence', verbose_name=_('платеж'))
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     title = models.CharField(null=True, max_length=200, unique=True,verbose_name=_('описание'))
     complete = models.BooleanField(default=False)
@@ -72,3 +72,14 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse('event-detail', args=(self.id,))
+
+    @property
+    def get_html_url(self):
+        url = reverse('event-detail', args=(self.id,))
+        # DATE_INPUT_FORMATS = ['%d-%m-%Y']
+        if self.complete == False:
+            return f'<p><b>{self.start_time.strftime("%H:%M")}</b><a href="{url}"> {self.title} </a></p>'
+        else:
+            return f'<strike><b>{self.start_time.strftime("%H:%M")}</b><a href="{url}"> {self.title} </a></strike>'
