@@ -32,7 +32,7 @@ class Service(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_service',
                                  verbose_name=_('бизнес/деятельность'))
     def __str__(self):
-        return f"{self.name}, {self.price}"
+        return f"{self.service_name}, {self.service_price}"
 
 class Expense(models.Model):
     expense_name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
@@ -42,19 +42,9 @@ class Expense(models.Model):
     date = models.DateTimeField(verbose_name=_('дата'))
 
     def __str__(self):
-        return f"{self.name}, {self.price}, {self.date}"
+        return f"{self.expense_name}, {self.expense_price}, {self.date}"
 
 
-
-class Plan(models.Model):
-    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_plan',
-                                 verbose_name=_('бизнес/деятельность'))
-    event = models.CharField(max_length=100, db_index=True, verbose_name=_('событие'))
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='service', verbose_name=_('услуга'))
-    datetime = models.DateTimeField(verbose_name=_('дата'))
-
-    def __str__(self):
-        return f"{self.event}, {self.service}, {self.datetime}"
 
 
 class Event(models.Model):

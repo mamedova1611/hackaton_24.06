@@ -97,20 +97,6 @@ class BusinessDetailView(DetailView):
         return render(request, 'businesses.html', {'service_form': service_form, 'expense_form': expense_form})
 
 
-class BusinessCreateView(CreateView):
-    model = Business
-    template_name = 'business_create.html'
-    fields = '__all__'
-
-    def get_success_url(self):
-        return self.request.META.get('HTTP_REFERER')
-
-    def get(self, request, *args, **kwargs):
-        expence = Expense.objects.create(
-            expense_name='НАЛОГ', expense_price=3063, date=datetime.today()
-        )
-        return render(request, 'profile.html', {'user': request.user})
-
 def create_business(request):
     if request.method == 'POST':
         form = BusinessForm(request.POST)
@@ -119,7 +105,8 @@ def create_business(request):
             Expense.objects.create(
                 expense_name='НАЛОГ', expense_price=3063, date=datetime.today(), business=business
             )
-            return render(request, 'profile.html', {'user': request.user})
+            profile = Profile.objects.get(user=request.user)
+            return render(request, 'profile.html', {'user': profile})
     else:
         form = BusinessForm()
     return render(request, 'business_create.html', {'form': form})
@@ -245,5 +232,12 @@ def create_event(request):
 
 class EventEdit(generic.UpdateView):
     model = Event
-    template_name = 'event-details.html'
-    fields = '__all__'
+    template_name = 'event.html'
+    fields = ['business', 'service', 'title', 'start_time', 'end_time']
+
+def event_details(request, pk):
+    event = Event.objects.get(id=pk)
+
+    return render(request, 'event-details.html', {'event': event})
+
+

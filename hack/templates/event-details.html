@@ -8,8 +8,8 @@ Event Details
 
     <div class="container">
         <div class="clearfix">
-            <a class="btn btn-primary left" href="{% url 'calendarapp:calendar' %}"> Календарь </a>
-            <a class="btn btn-info right mr-2" href="{% url 'calendarapp:event_edit' event.pk %}"> Редактировать </a>
+            <a class="btn btn-primary left" href="{% url 'calendar' %}"> Календарь </a>
+            <a class="btn btn-info right mr-2" href="{% url 'event_edit' event.pk %}"> Редактировать </a>
         </div>
         
         <div class="clearfix">
@@ -19,7 +19,7 @@ Event Details
             <p><b>Выполнено:</b> {{ event.complete }}</p>
             <p>{{ event.description }}</p>
         </div>
-        <a class="btn btn-info right mr-2" href="{% url 'calendarapp:event_edit' event.pk %}"> Удалить </a>
+        <a class="btn btn-info right mr-2" href="{% url 'event_edit' event.id %}"> Удалить </a>
         <hr>
 
 {% endblock %}
