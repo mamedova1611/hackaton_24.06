@@ -44,4 +44,15 @@
 </tr>
 </table>
     <h1>ПРИБЫЛЬ : {{ total }} </h1>
+
+<form method="POST">
+    {% csrf_token %}
+{#    <input hidden name=" income" value="{{ income }}">#}
+{#    {{ income }}#}
+{#    <input hidden name="id" value="{{ total_income }}">#}
+{#    <input hidden name="id" value="{{ expense }}">#}
+{#    <input hidden name="id" value="{{ total_expense }}">#}
+{#    <input hidden name="id" value="{{ total }}">#}
+    <button class="submit">{% trans "Купить" %}</button>
+</form>
 {% endblock %}

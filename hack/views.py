@@ -1,18 +1,20 @@
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.views import LoginView, LogoutView
-from django.db.models import Count
-from django.views import View
-from django.views.generic import UpdateView, CreateView, ListView, DetailView
+import calendar
 from calendar import HTMLCalendar
 from datetime import datetime, date
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.safestring import mark_safe
 from datetime import timedelta
-import calendar
-import xlwt as xlwt
+
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import *
+from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Count
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.utils.safestring import mark_safe
+from django.views import View
+from django.views.generic import UpdateView, ListView, DetailView
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
+
 from .forms import *
 
 
@@ -248,23 +250,27 @@ def event_details(request, pk):
 
 
 class ReportView(View):
-    def get(self, request, pk):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.report_income, self.report_expenses = [], []
+        self.total_income, self.total_expense = 0, 0
+        self.total = 0
+
+    def kalculator(self):
         event = Event.objects.select_related('service', 'user', 'expense')
         top_service = event.values('service__service_name').annotate(num=Count('service'))
         top_expense = event.values('expense__expense_name').annotate(num=Count('expense'))
-        report_income, report_expenses = [], []
-        total_income, total_expense = 0, 0
+
         for service in top_service:
             list_income = {}
             service_name_event = service['service__service_name']
-            print(service_name_event)
             if not service_name_event is None:
                 s = Service.objects.get(service_name=service_name_event)
                 if s.service_name == service_name_event:
                     list_income['name'] = service_name_event
                     list_income['summa'] = s.service_price * service['num']
-                    total_income += list_income['summa']
-                report_income.append(list_income)
+                    self.total_income += list_income['summa']
+                self.report_income.append(list_income)
         for expense in top_expense:
             list_expense = {}
             expense_name_event = expense['expense__expense_name']
@@ -273,11 +279,59 @@ class ReportView(View):
                 if e.expense_name == expense_name_event:
                     list_expense['name'] = expense_name_event
                     list_expense['summa'] = e.expense_price * expense['num']
-                    total_expense += list_expense['summa']
-                report_expenses.append(list_expense)
-        total = total_income - total_expense
+                    self.total_expense += list_expense['summa']
+                self.report_expenses.append(list_expense)
+        self.total = self.total_income - self.total_expense
 
-        return render(request, 'report.html', {'income': report_income, 'total_income': total_income,
-                                               'expense': report_expenses, 'total_expense': total_expense,
-                                               'total': total})
+    def get(self, request, pk):
+        self.kalculator()
+        return render(request, 'report.html', {'income': self.report_income, 'total_income': self.total_income,
+                                               'expense': self.report_expenses, 'total_expense': self.total_expense,
+                                               'total': self.total})
 
+    def post(self, request, pk):
+        self.kalculator()
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet['A1'] = 'ДОХОДЫ'
+        worksheet['A2'] = 'СТАТЬИ'
+        worksheet['B2'] = 'СУММА'
+        worksheet['D1'] = 'РАСХОДЫ'
+        worksheet['D2'] = 'СТАТЬИ'
+        worksheet['E2'] = 'СУММА'
+        count = 3
+        for i in self.report_income:
+            if not i is None:
+                for name, summa in i.items():
+                    if name == 'name':
+                        num_cell = 'A%s' % count
+                        worksheet[num_cell] = summa
+                    elif name == 'summa':
+                        num_cell = 'B%s' % count
+                        worksheet[num_cell] = summa
+                        count += 1
+        num_cell = 'A%s' % count
+        worksheet[num_cell] = 'ИТОГО'
+        num_cell = 'B%s' % count
+        worksheet[num_cell] = self.total_income
+        count = 3
+        for i in self.report_expenses:
+            if not i is None:
+                for name, summa in i.items():
+                    if name == 'name':
+                        num_cell = 'D%s' % count
+                        worksheet[num_cell] = summa
+                    elif name == 'summa':
+                        num_cell = 'E%s' % count
+                        worksheet[num_cell] = summa
+                        count += 1
+        num_cell = 'D%s' % count
+        worksheet[num_cell] = 'ИТОГО'
+        num_cell = 'E%s' % count
+        worksheet[num_cell] = self.total_expense
+        worksheet['G1'] = 'ПРИБЫЛЬ'
+        worksheet['H1'] = self.total
+        response = HttpResponse(content=save_virtual_workbook(workbook),
+                                content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=myexport.xlsx'
+        return response

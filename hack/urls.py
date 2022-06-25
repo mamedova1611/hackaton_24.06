@@ -19,5 +19,6 @@ urlpatterns = [
     path('event/edit/<int:pk>/', event_details, name='event_edit'),
     path('event/details/<int:pk>', EventEdit.as_view(), name='event-detail'),
     path('event/delete/<int:pk>/', EventEdit.as_view(), name='delete_event'),
-    path('report/<int:pk>/', ReportView.as_view(), name='report')
+    path('report/<int:pk>/', ReportView.as_view(), name='report'),
+    # path('export/', export_xls )
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

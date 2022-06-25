@@ -4,31 +4,35 @@ from django.forms import ModelForm, DateInput
 
 from .models import *
 
+
 class AuthForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
 
+
 class ProfileForm(UserCreationForm):
     phone = forms.CharField(max_length=11, required=False, help_text='телефон')
     city = forms.CharField(max_length=30, required=False, help_text='город')
-    email = forms.EmailField(required=False,help_text='почта')
+    email = forms.EmailField(required=False, help_text='почта')
 
     class Meta:
         model = User
         fields = ['username', 'phone', 'city', 'email', 'password1', 'password2']
 
+
 class BusinessForm(ModelForm):
     class Meta:
-        model= Business
+        model = Business
         fields = ['name', 'category']
+
 
 class ServiceForm(ModelForm):
     class Meta:
         model = Service
         fields = ['service_name', 'service_price']
 
-class ExpenseForm(ModelForm):
 
+class ExpenseForm(ModelForm):
     class Meta:
         model = Expense
 
@@ -41,6 +45,7 @@ class ExpenseForm(ModelForm):
         super(ExpenseForm, self).__init__(*args, **kwargs)
 
         self.fields['date'].input_formats = ('%Y-%m-%d',)
+
 
 class EventForm(ModelForm):
     class Meta:
@@ -57,4 +62,3 @@ class EventForm(ModelForm):
 
         self.fields['start_time'].input_formats = ('%Y-%m-%dT%H:%M',)
         self.fields['end_time'].input_formats = ('%Y-%m-%dT%H:%M',)
-
