@@ -1,10 +1,7 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView, LogoutView
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.views import View
-from django.views.generic import UpdateView, CreateView, ListView, DetailView, DeleteView
+from django.views.generic import UpdateView, CreateView, ListView, DetailView
+
 from .forms import *
 
 
@@ -32,6 +29,7 @@ def register_view(request):
         form = ProfileForm()
     return render(request, 'register.html', {'form': form})
 
+
 class UserLoginView(LoginView):
     template_name = 'login.html'
 
@@ -39,11 +37,13 @@ class UserLoginView(LoginView):
 class UserLogoutView(LogoutView):
     template_name = 'logout.html'
 
+
 class ProfileDetailView(DetailView):
     model = Profile
     template_name = 'profile.html'
     context_object_name = 'user'
     pk_url_kwarg = 'pk'
+
 
 class ProfileEditFormView(UpdateView):
     model = Profile
@@ -51,11 +51,11 @@ class ProfileEditFormView(UpdateView):
     fields = '__all__'
 
 
-
 class BusinessListView(ListView):
     model = Business
     template_name = 'businesses_list.html'
     context_object_name = 'businesses'
+
 
 class BusinessDetailView(DetailView):
     model = Business
@@ -71,7 +71,7 @@ class BusinessDetailView(DetailView):
         context['expense_form'] = ExpenseForm()
         return context
 
-    def post(self,request, pk):
+    def post(self, request, pk):
         business = Business.objects.get(pk=pk)
         service_form = ServiceForm(request.POST)
         expense_form = ExpenseForm(request.POST)
@@ -84,7 +84,8 @@ class BusinessDetailView(DetailView):
             expense.save()
             return HttpResponseRedirect(reverse('business_detail', args=[pk]))
 
-        return render(request, 'businesses.html', {'service_form': service_form,'expense_form': expense_form})
+        return render(request, 'businesses.html', {'service_form': service_form, 'expense_form': expense_form})
+
 
 class BusinessCreateView(CreateView):
     model = Business
@@ -94,6 +95,7 @@ class BusinessCreateView(CreateView):
     def get_success_url(self):
         return self.request.META.get('HTTP_REFERER')
 
+
 class BusinessEditView(UpdateView):
     model = Business
     template_name = 'business_edit.html'
@@ -102,7 +104,117 @@ class BusinessEditView(UpdateView):
     def get_success_url(self):
         return self.request.META.get('HTTP_REFERER')
 
+
 # class BusinnessDeleteView(View):
 #     def post(self, request, pk):
 #         business = Business.objects.filter(pk=pk).delete()
 #         return render(request, 'profile.html', {'user': self.request.user})
+from calendar import HTMLCalendar
+from .models import Event
+
+
+class Calendar(HTMLCalendar):
+    def __init__(self, year=None, month=None):
+        self.year = year
+        self.month = month
+        super(Calendar, self).__init__()
+
+    def formatday(self, day, events):
+        events_per_day = events.filter(start_time__day=day)
+        d = ''
+
+        for event in events_per_day:
+            d += f'<li> {event.get_html_url} </li>'
+
+        if day != 0:
+            return f"<td><span class='date'>{day}</span><ul> {d} </ul></td>"
+        return '<td></td>'
+
+    def formatweek(self, theweek, events):
+        week = ''
+        for d, weekday in theweek:
+            week += self.formatday(d, events)
+        return f'<tr> {week} </tr>'
+
+    def formatmonth(self, withyear=True):
+        events = Event.objects.filter(start_time__year=self.year, start_time__month=self.month)
+
+        cal = f'<table border="0" cellpadding="0" cellspacing="0" class="calendar">\n'
+        cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
+        cal += f'{self.formatweekheader()}\n'
+        for week in self.monthdays2calendar(self.year, self.month):
+            cal += f'{self.formatweek(week, events)}\n'
+        return cal
+
+
+from datetime import datetime, date
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views import generic
+from django.utils.safestring import mark_safe
+from datetime import timedelta
+import calendar
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
+def get_date(req_day):
+    if req_day:
+        year, month = (int(x) for x in req_day.split('-'))
+        return date(year, month, day=1)
+    return datetime.today()
+
+
+def prev_month(d):
+    first = d.replace(day=1)
+    prev_month = first - timedelta(days=1)
+    month = 'month=' + str(prev_month.year) + '-' + str(prev_month.month)
+    return month
+
+
+def next_month(d):
+    days_in_month = calendar.monthrange(d.year, d.month)[1]
+    last = d.replace(day=days_in_month)
+    next_month = last + timedelta(days=1)
+    month = 'month=' + str(next_month.year) + '-' + str(next_month.month)
+    return month
+
+
+class CalendarView(LoginRequiredMixin, generic.ListView):
+    model = Event
+    template_name = 'calendar.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        d = get_date(self.request.GET.get('month', None))
+        cal = Calendar(d.year, d.month)
+        html_cal = cal.formatmonth(withyear=True)
+        context['calendar'] = mark_safe(html_cal)
+        context['prev_month'] = prev_month(d)
+        context['next_month'] = next_month(d)
+        return context
+
+def create_event(request):
+    form = EventForm(request.POST or None)
+    if form.is_valid():
+        business = form.cleaned_data['business']
+        service = form.cleaned_data['service']
+        title = form.cleaned_data['title']
+        start_time = form.cleaned_data['start_time']
+        end_time = form.cleaned_data['end_time']
+        event = form.save(commit=False)
+        event.user = request.user
+        event.business = business
+        event.service = service
+        event.title = title
+        event.start_time = start_time
+        event.end_time = end_time
+        event.save()
+        return HttpResponseRedirect(reverse('calendar'))
+    return render(request, 'event.html', {'form': form})
+
+
+class EventEdit(generic.UpdateView):
+    model = Event
+    template_name = 'event-details.html'
+    fields = '__all__'

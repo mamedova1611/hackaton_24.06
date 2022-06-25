@@ -1,6 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm, DateInput
 
 from .models import *
 
@@ -27,9 +27,20 @@ class ExpenseForm(ModelForm):
     class Meta:
         model = Expense
         fields = ['name','price', 'date']
-#
-# class PlanForm(ModelForm):
-#     class Meta:
-#         model = Plan
-#         fields = ['event', 'service', 'datetime']
+
+class EventForm(ModelForm):
+    class Meta:
+        model = Event
+
+        widgets = {
+            'start_time': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'end_time': DateInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+        }
+        exclude = ['user', 'expense', 'complete']
+
+    def __init__(self, *args, **kwargs):
+        super(EventForm, self).__init__(*args, **kwargs)
+
+        self.fields['start_time'].input_formats = ('%Y-%m-%dT%H:%M',)
+        self.fields['end_time'].input_formats = ('%Y-%m-%dT%H:%M',)
 

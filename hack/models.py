@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
 
 
 class Category(models.Model):
@@ -17,6 +19,13 @@ class Business(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('пользователь'))
+    phone = models.CharField(max_length=11, null=True, blank=True, verbose_name=_('телефон'))
+    city = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('город'))
+    email = models.EmailField(null=True, blank=True, verbose_name=_('почта'))
+    business = models.ForeignKey(Business, null=True, on_delete=models.CASCADE, related_name='business_profile',
+                                 verbose_name=_('бизнес/деятельность'))
 class Service(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
@@ -35,6 +44,8 @@ class Expense(models.Model):
     def __str__(self):
         return f"{self.name}, {self.price}, {self.date}"
 
+
+
 class Plan(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='business_plan',
                                  verbose_name=_('бизнес/деятельность'))
@@ -45,10 +56,19 @@ class Plan(models.Model):
     def __str__(self):
         return f"{self.event}, {self.service}, {self.datetime}"
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('пользователь'))
-    phone = models.CharField(max_length=11, null=True, blank=True, verbose_name=_('телефон'))
-    city = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('город'))
-    email = models.EmailField(null=True, blank=True, verbose_name=_('почта'))
-    business = models.ForeignKey(Business, null=True, on_delete=models.CASCADE, related_name='business_profile',
+
+class Event(models.Model):
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='event_business',
                                  verbose_name=_('бизнес/деятельность'))
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='event_service', verbose_name=_('услуга'))
+    expense = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='event_expence', verbose_name=_('платеж'))
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    title = models.CharField(null=True, max_length=200, unique=True,verbose_name=_('описание'))
+    complete = models.BooleanField(default=False)
+    start_time = models.DateTimeField(verbose_name=_('начало'))
+    end_time = models.DateTimeField(verbose_name=_('конец'))
+    created_date = models.DateTimeField(auto_now_add=True,verbose_name=_('услуга'))
+
+    def __str__(self):
+        return self.title
+
