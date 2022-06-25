@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "ДОХОДЫ" %}{% endblock %}
+{% block body %}
+<table> ДОХОДЫ
+        <th> Наименование </th>
+        <th> Сумма </th>
+        {% for i in income %}
+            <tr>
+            {% for name, summa in i.items %}
+            {% if name == 'name' %}
+            <td> {{ summa }}</td>
+        {% endif %}
+        {% if name == 'summa' %}
+            <td> {{ summa }}</td>
+        {% endif %}
+        {% endfor %}
+            </tr>
+    {% endfor %}
+<tr>
+    <td>ИТОГО</td>
+    <td>{{ total_income }}</td>
+</tr>
+</table>
+<table>
+АСХОДЫ
+<th> Наименование </th>
+        <th> Сумма </th>
+        {% for i in expense %}
+            <tr>
+            {% for name, summa in i.items %}
+            {% if name == 'name' %}
+            <td> {{ summa }}</td>
+        {% endif %}
+        {% if name == 'summa' %}
+            <td> {{ summa }}</td>
+        {% endif %}
+        {% endfor %}
+            </tr>
+    {% endfor %}
+<tr>
+    <td>ИТОГО</td>
+    <td>{{ total_expense }}</td>
+</tr>
+</table>
+    <h1>ПРИБЫЛЬ : {{ total }} </h1>
+{% endblock %}

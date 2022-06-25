@@ -20,7 +20,7 @@ class ProfileForm(UserCreationForm):
 class BusinessForm(ModelForm):
     class Meta:
         model= Business
-        fields = '__all__'
+        fields = ['name', 'category']
 
 class ServiceForm(ModelForm):
     class Meta:

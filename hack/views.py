@@ -1,7 +1,17 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Count
+from django.views import View
 from django.views.generic import UpdateView, CreateView, ListView, DetailView
 from calendar import HTMLCalendar
+from datetime import datetime, date
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.safestring import mark_safe
+from datetime import timedelta
+import calendar
+import xlwt as xlwt
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
 from .forms import *
 
@@ -73,6 +83,7 @@ class BusinessDetailView(DetailView):
         return context
 
     def post(self, request, pk):
+        profile = Profile.objects.get(user=self.request.user)
         business = Business.objects.get(pk=pk)
         service_form = ServiceForm(request.POST)
         expense_form = ExpenseForm(request.POST)
@@ -80,6 +91,9 @@ class BusinessDetailView(DetailView):
             form = expense_form.save(commit=False)
             form.business = business
             form.save()
+            expense = Expense.objects.filter(business=business).latest('id')
+            Event.objects.create(business=business, expense=expense, user=profile,
+                                 start_time=expense.date, end_time=expense.date)
             return HttpResponseRedirect(reverse('business_detail', args=[pk]))
         if service_form.is_valid() and not expense_form.is_valid():
             form = service_form.save(commit=False)
@@ -101,15 +115,19 @@ def create_business(request):
     if request.method == 'POST':
         form = BusinessForm(request.POST)
         if form.is_valid():
-            business = form.save()
+            business = form.save(commit=False)
+            profile = Profile.objects.get(user=request.user)
+            business.profile = profile
+            business.save()
             Expense.objects.create(
                 expense_name='НАЛОГ', expense_price=3063, date=datetime.today(), business=business
             )
-            profile = Profile.objects.get(user=request.user)
+
             return render(request, 'profile.html', {'user': profile})
     else:
         form = BusinessForm()
     return render(request, 'business_create.html', {'form': form})
+
 
 class BusinessEditView(UpdateView):
     model = Business
@@ -124,7 +142,6 @@ class BusinessEditView(UpdateView):
 #     def post(self, request, pk):
 #         business = Business.objects.filter(pk=pk).delete()
 #         return render(request, 'profile.html', {'user': self.request.user})
-
 
 
 class Calendar(HTMLCalendar):
@@ -161,17 +178,6 @@ class Calendar(HTMLCalendar):
         return cal
 
 
-from datetime import datetime, date
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views import generic
-from django.utils.safestring import mark_safe
-from datetime import timedelta
-import calendar
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-
-
 def get_date(req_day):
     if req_day:
         year, month = (int(x) for x in req_day.split('-'))
@@ -194,7 +200,7 @@ def next_month(d):
     return month
 
 
-class CalendarView(LoginRequiredMixin, generic.ListView):
+class CalendarView(LoginRequiredMixin, ListView):
     model = Event
     template_name = 'calendar.html'
 
@@ -230,14 +236,48 @@ def create_event(request):
     return render(request, 'event.html', {'form': form})
 
 
-class EventEdit(generic.UpdateView):
+class EventEdit(UpdateView):
     model = Event
     template_name = 'event.html'
     fields = ['business', 'service', 'title', 'start_time', 'end_time']
 
+
 def event_details(request, pk):
     event = Event.objects.get(id=pk)
-
     return render(request, 'event-details.html', {'event': event})
 
+
+class ReportView(View):
+    def get(self, request, pk):
+        event = Event.objects.select_related('service', 'user', 'expense')
+        top_service = event.values('service__service_name').annotate(num=Count('service'))
+        top_expense = event.values('expense__expense_name').annotate(num=Count('expense'))
+        report_income, report_expenses = [], []
+        total_income, total_expense = 0, 0
+        for service in top_service:
+            list_income = {}
+            service_name_event = service['service__service_name']
+            print(service_name_event)
+            if not service_name_event is None:
+                s = Service.objects.get(service_name=service_name_event)
+                if s.service_name == service_name_event:
+                    list_income['name'] = service_name_event
+                    list_income['summa'] = s.service_price * service['num']
+                    total_income += list_income['summa']
+                report_income.append(list_income)
+        for expense in top_expense:
+            list_expense = {}
+            expense_name_event = expense['expense__expense_name']
+            if not expense_name_event is None:
+                e = Expense.objects.get(expense_name=expense_name_event)
+                if e.expense_name == expense_name_event:
+                    list_expense['name'] = expense_name_event
+                    list_expense['summa'] = e.expense_price * expense['num']
+                    total_expense += list_expense['summa']
+                report_expenses.append(list_expense)
+        total = total_income - total_expense
+
+        return render(request, 'report.html', {'income': report_income, 'total_income': total_income,
+                                               'expense': report_expenses, 'total_expense': total_expense,
+                                               'total': total})
 

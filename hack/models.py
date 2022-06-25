@@ -11,21 +11,22 @@ class Category(models.Model):
     def __str__(self):
         return f"{self.name}"
 
-
-class Business(models.Model):
-    name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category',
-                                 verbose_name=_('категория'))
-    def __str__(self):
-        return f"{self.name}"
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name=_('пользователь'))
     phone = models.CharField(max_length=11, null=True, blank=True, verbose_name=_('телефон'))
     city = models.CharField(max_length=30, null=True, blank=True, verbose_name=_('город'))
     email = models.EmailField(null=True, blank=True, verbose_name=_('почта'))
-    business = models.ForeignKey(Business, null=True, on_delete=models.CASCADE, related_name='business_profile',
-                                 verbose_name=_('бизнес/деятельность'))
+
+class Business(models.Model):
+    name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category',
+                                 verbose_name=_('категория'))
+    profile = models.ForeignKey(Profile, null=True, on_delete=models.CASCADE, related_name='profile',
+                                 verbose_name=_('пользователь'))
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Service(models.Model):
     service_name = models.CharField(max_length=100, db_index=True, verbose_name=_('наименование'))
     service_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('цена'))
@@ -50,7 +51,7 @@ class Expense(models.Model):
 class Event(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='event_business',
                                  verbose_name=_('бизнес/деятельность'))
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='event_service', verbose_name=_('услуга'))
+    service = models.ForeignKey(Service, on_delete=models.CASCADE,null=True, related_name='event_service', verbose_name=_('услуга'))
     expense = models.ForeignKey(Expense, on_delete=models.CASCADE,null=True, related_name='event_expence', verbose_name=_('платеж'))
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     title = models.CharField(null=True, max_length=200, unique=True,verbose_name=_('описание'))
