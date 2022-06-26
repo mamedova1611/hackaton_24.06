@@ -1,0 +1,95 @@
+{% extends 'base.html' %} {% load static %} {% load i18n %} {% block title %}{% trans "Главная" %}{% endblock %} {% block body %}
+
+<head>
+
+    <link href="../static/css/main.css" rel="stylesheet">
+</head>
+
+<style>
+    .icon {
+        height: 30px;
+        width: 30px;
+        position: absolute;
+        left: 25%;
+        top: 17%;
+    }
+</style>
+<div class="main" style="display: flex;justify-content: center; align-items: center; flex-direction: column;">
+    <h3 style="display: flex; justify-content: center; align-items: center; border: solid 1px darkslateblue; border-radius: 40px; width: 200px; height: 70px;"> Easy&Tracker</h3>
+
+    <div>
+        Сервис для учёта, аналитики и/или прогнозирования доходов самозанятых граждан
+    </div>
+</div>
+<hr style="color: darkcyan;">
+<br>
+<div class="about" id = "about">
+    <h3> О сервисе</h3>
+    <div class="container">
+        Цель нашего продукта - дать возможность самозанятым работникам учитывать и анализировать свои доходы, планировать расходы, прогнозировать будущий заработок и ставить и достигать финансовые цели.
+    </div>
+</div>
+<br>
+
+<hr>
+
+<div class="who" id = "politics">
+    <h3>Кто такие самозанятые?</h3>
+
+    <div class="container">
+        <strong> Самозанятые или независимые работники </strong> – это физические лица, самостоятельно осуществляющие деятельность по производству (реализации) товаров, работ и услуг с целью извлечения дохода без государственной регистрации своей деятельности,
+        за исключением индивидуальных предпринимателей (ИП), лиц, занимающихся частной практикой (ЧП), учредителей (участников) хозяйственного товарищества и учредителей, акционеров (участников) акционерного общества, членов производственного кооператива.
+        Иными словами, это те, кто зарабатывают себе на жизнь без официально заключенного трудового договора с работодателями.
+    </div>
+
+
+    <div class="container" id="esp">
+        <strong> Размер ЕСП:</strong>
+        <li> 1 МРП – для физических лиц, проживающих в городах республиканского значения, столице и областного значения (3 063,00 тенге в 2022 году);</li>
+        <li>0,5 МРП – для физических лиц, проживающих в других населенных пунктах (1 531,50 теңге в 2022 году).</li>
+
+    </div>
+
+</div>
+
+<br>
+
+<div id = "partners"></div>
+<h3 > Проект реализован при поддержке партнеров </h3>
+<br>
+
+<ul class="nav justify-content-center">
+    <li>
+        <div class="card" style="width: 18rem; margin: 30px">
+            <img src="{% static 'img/p1.png' %}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">TerriconValley</h5>
+                <p class="card-text"></p>
+                <a href="https://terricon.kz/ru/" class="btn btn-primary">Перейти на сайт</a>
+            </div>
+        </div>
+    </li>
+    <li>
+        <div class="card" style="width: 18rem; margin: 30px" id="partners-2; " >
+            <img src="{% static 'img/p2.jpg' %}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Halyk Bank</h5>
+                <p class="card-text"></p>
+                <a href="https://halykbank.kz" class="btn btn-primary">Перейти на сайт</a>
+            </div>
+        </div>
+    </li>
+    <li>
+        <div class="card" style="width: 18rem; margin: 30px" id="partners-2">
+            <img src="{% static 'img/p3.jpg' %}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">InDriver</h5>
+                <p class="card-text"></p>
+                <a href="https://indriver.com/ru/city/" class="btn btn-primary">Перейти на сайт</a>
+            </div>
+        </div>
+    </li>
+
+
+</ul>
+{% endblock %}

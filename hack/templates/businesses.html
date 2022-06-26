@@ -1,54 +1,57 @@
-{% extends 'base.html' %}
-{% load i18n %}
-{% block title %}{% trans "Мои бизнесы" %}{% endblock %}
+{% extends 'base.html' %} {% load i18n %} {% block title %}{% trans "Мои бизнесы" %}{% endblock %} {% load crispy_forms_tags %}
+
+<head>
+    <link href="../static/css/main.css" rel="stylesheet">
+</head>
 {% block body %}
-    {{ business.name }}
-    {{ business.сategory }}
-    <button class="btn" type="button" ><a href="">Редактировать</a> </button>
-        Услуги
-        <table>
-            <th>{% trans Наименование%} </th>
-            <th>{% trans Цена%}</th>
-        {% if services %}
-            {% for s in services %}
-                <tr>
-                <td>{{ s.service_name }}</td>
-                <td>{{ s.service_price }}</td>
-                </tr>
-            {% endfor %}
-            {% else %}
-            НЕТУ
-        {% endif %}
+<div style="position: relative; left: 30%; right: 30%;">
+    <h4>Мой проект: {{ business.name }} {{ business.сategory.name }}</h4>
+    <button class="btn btn-outline-primary" type="button"><a href="{% url 'business_edit' business.id %}">Редактировать</a> </button>
 
-        </table>
-        Добавить услугу
-        <form method="post" action=".">
-        {% csrf_token %}
-        {{ service_form.as_p}}
-        <button type="submit">{% trans 'Добавить' %}</button>
-        </form>
-        Платежи
-        <table>
-            <th>{% trans Наименование%} </th>
-            <th>{% trans Цена%}</th>
-        {% if expenses %}
-            {% for e in expenses %}
-                <tr>
-                <td>{{ e.expense_name }}</td>
-                <td>{{ e.expense_price }}</td>
-                <td>{{ e.data }}</td>
-                </tr>
-            {% endfor %}
-            {% else %}
-            НЕТУ
-        {% endif %}
+</div>
 
-        </table>
-        Добавить платеж
-        <form method="post" action=".">
-        {% csrf_token %}
-        {{ expense_form.as_p}}
-        <button type="submit">{% trans 'Добавить' %}</button>
-        </form>
+<br>
+<h3>Услуги</h3>
+<br>
+
+<table class="table table-striped">
+    <th>{% trans "Наименование" %} </th>
+    <th>{% trans "Цена" %}</th>
+    {% if services %} {% for s in services %}
+    <tr>
+        <td>{{ s.service_name }}</td>
+        <td>{{ s.service_price }}</td>
+    </tr>
+    {% endfor %} {% else %} НЕТУ {% endif %}
+
+</table>
+<br>
+    <h3> Добавить услугу </h3>
+<form method="post" action=".">
+    {% csrf_token %} {{ service_form|crispy }}
+    <button type="submit" class="btn btn-outline-primary">{% trans 'Добавить' %}</button>
+</form>
+<br>
+<hr>
+<br>
+<h3>Платежи </h3>
+<br>
+<table class="table table-striped">
+    <th>{% trans "Наименование" %} </th>
+    <th>{% trans "Цена" %}</th>
+    {% if expenses %} {% for e in expenses %}
+    <tr>
+        <td>{{ e.expense_name }}</td>
+        <td>{{ e.expense_price }}</td>
+        <td>{{ e.data }}</td>
+    </tr>
+    {% endfor %} {% else %} НЕТУ {% endif %}
+
+</table>
+    <br> <h3> Добавить платеж</h3>
+<form method="post" action=".">
+    {% csrf_token %} {{ expense_form|crispy}}
+    <button type="submit" class="btn btn-outline-primary">{% trans 'Добавить' %}</button>
+</form>
 
 {% endblock %}

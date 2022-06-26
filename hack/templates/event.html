@@ -4,6 +4,7 @@
 Event
 {% endblock %}
 
+{% load crispy_forms_tags %}
 {% block body %}
 
  <style type="text/css">
@@ -17,10 +18,10 @@ Event
   <a class="btn btn-info left" href="{% url 'calendar' %}"> Календарь </a>
 </div>
 
-<form method="post">
+<form method="post" class="post_form">
   {% csrf_token %}
   <table class="form form-table" style = "background-color:#fadbc8; border-radius: 10px;">
-    {{ form.as_p }}
+    {{ form|crispy }}
     <tr><td colspan="2"><button type="submit" class="btn btn-info right"> Готово! </button></td></tr>
   </table>
 </form>

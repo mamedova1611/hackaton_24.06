@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% block title %}{% trans "Профиль" %}{% endblock %}
+
+{% load crispy_forms_tags %}
 {% block body %}
-<form method="post">
+<form method="post" class="post_form">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">{% trans "Сохранить" %}</button>
+    {{ form|crispy }}
+    <button type="submit" class = "btn btn-primary">{% trans "Сохранить" %}</button>
     </form>
 {% endblock %}

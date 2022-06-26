@@ -3,9 +3,15 @@
 {% block title %}{% trans "Логаут" %}{% endblock %}
 
 {% block body %}
-<h2>{% trans "Работа завершена !" %}</h2>
+    <div style="position: relative; width: 100%; height: 85%; text-align: center; margin-top: 5%; margin-bottom: 10% ">
+    <h3>{% trans "Работа завершена !" %}</h3>
 
-<a href="{% url 'login'%}">{% trans "Нажмите здесь, чтобы вернуться к авторизации" %}</a>
-<br>
-<a href=""> {% trans "На главную" %}</a>
+    <a href="{% url 'login'%}">{% trans "Нажмите здесь, чтобы вернуться к авторизации" %}</a>
+    <br><br>
+    <a href="{% url 'index' %}"> {% trans "На главную" %}</a>
+
+    <img src="https://cdn-icons-png.flaticon.com/512/483/483343.png" height="25" alt="MDB Logo" loading="lazy" />
+
+    </div>
+
 {% endblock %}

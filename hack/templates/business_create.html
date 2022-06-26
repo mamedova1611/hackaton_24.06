@@ -2,11 +2,12 @@
 {% load i18n %}
 {% block title %}{% trans "Добавление бизнеса" %}{% endblock %}
 
+{% load crispy_forms_tags %}
 {% block body %}
-    <form method="post">
+    <form method="post" class="post_form">
       <h1>{% trans "Добавление бизнеса" %}</h1>
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form|crispy }}
         <button class="submit">{% trans "Добавить" %}</button>
    </form>
 {% endblock %}

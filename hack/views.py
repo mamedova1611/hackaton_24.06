@@ -1,7 +1,13 @@
 import calendar
+import math
+import os
 from calendar import HTMLCalendar
 from datetime import datetime, date
 from datetime import timedelta
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt1
+import matplotlib.pyplot as plt2
+import numpy as np
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,8 +21,11 @@ from django.views.generic import UpdateView, ListView, DetailView
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
+from hackathon.settings import BASE_DIR
 from .forms import *
 
+def index(request):
+    return render(request, 'main.html')
 
 def register_view(request):
     if request.method == 'POST':
@@ -134,10 +143,8 @@ def create_business(request):
 class BusinessEditView(UpdateView):
     model = Business
     template_name = 'business_edit.html'
-    fields = '__all__'
+    fields =  ['name', 'category']
 
-    def get_success_url(self):
-        return self.request.META.get('HTTP_REFERER')
 
 
 # class BusinnessDeleteView(View):
@@ -255,6 +262,7 @@ class ReportView(View):
         self.report_income, self.report_expenses = [], []
         self.total_income, self.total_expense = 0, 0
         self.total = 0
+        self.count = 1
 
     def kalculator(self):
         event = Event.objects.select_related('service', 'user', 'expense')
@@ -285,9 +293,46 @@ class ReportView(View):
 
     def get(self, request, pk):
         self.kalculator()
+        percent_exp = self.total_expense * 100 / self.total_income
+        percent_profit = abs(self.total * 100 / self.total_income)
+        y = np.array([percent_exp, percent_profit])
+        mylabels = ["Убыток", "Прибыль"]
+        myexplode = [0.2, 0]
+        plt.figure()
+        plt.pie(y, labels=mylabels, explode=myexplode)
+        plt.savefig(os.path.join(BASE_DIR, 'hack', 'static', 'img', 'pie_chart%s.png' % self.count))
+        mylabels1 = []
+        percents = []
+        for i in self.report_income:
+            if not i is None:
+                for name, summa in i.items():
+                    if name == 'name':
+                        mylabels1.append(summa)
+                    elif name == 'summa':
+                        percents.append((summa * 100) / self.total_income)
+        plt.figure()
+        plt.pie(np.array(percents), labels=mylabels1)
+        plt.savefig(os.path.join(BASE_DIR, 'hack', 'static', 'img', 'pie_chart_income%s.png' % self.count))
+        mylabels2 = []
+        percents2 = []
+        for i in self.report_expenses:
+            if not i is None:
+                for name, summa in i.items():
+                    if name == 'name':
+                        mylabels2.append(summa)
+                    elif name == 'summa':
+                        percents2.append((summa * 100) / self.total_expense)
+        plt.figure()
+        plt.pie(np.array(percents2), labels=mylabels2)
+        plt.savefig(os.path.join(BASE_DIR, 'hack', 'static', 'img', 'pie_chart_exp%s.png' % self.count))
+        path_chart = '/hack/static/img/pie_chart%s.png' % self.count
+        path_chart_i = '/hack/static/img/pie_chart_income%s.png' % self.count
+        path_chart_e = '/hack/static/img/pie_chart_exp%s.png' % self.count
+        self.count += 1
         return render(request, 'report.html', {'income': self.report_income, 'total_income': self.total_income,
                                                'expense': self.report_expenses, 'total_expense': self.total_expense,
-                                               'total': self.total})
+                                               'total': self.total, 'path_img': path_chart, 'path_img_income': path_chart_i,
+                                               'path_img_exp': path_chart_e})
 
     def post(self, request, pk):
         self.kalculator()
@@ -335,3 +380,4 @@ class ReportView(View):
                                 content_type='application/ms-excel')
         response['Content-Disposition'] = 'attachment; filename=myexport.xlsx'
         return response
+

@@ -2,11 +2,16 @@
 {% load i18n %}
 {% block title %}{% trans "Регистрация" %}{% endblock %}
 
+{% load crispy_forms_tags %}
 {% block body %}
-    <form method="post">
-      <h1>{% trans "Регистрация" %}</h1>
+
+
+<div style = "position: relative; border-radius: 30px; border: solid 1px; padding: 20px; width: 500px; left: 30%">
+    <form method="post" class="post_form">
+      <h3>{% trans "Регистрация" %}</h3>
         {% csrf_token %}
-        {{ form.as_p }}
-        <button class="submit">{% trans "Зарегистрироваться" %}</button>
+        {{ form|crispy }}
+        <button class="btn btn-primary">{% trans "Зарегистрироваться" %}</button>
    </form>
+</div>
 {% endblock %}

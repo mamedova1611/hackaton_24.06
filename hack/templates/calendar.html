@@ -1,24 +1,281 @@
-{% extends 'base.html' %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="../static/normalize.css" rel="stylesheet">
+    <link href="../static/css/main.css" rel="stylesheet">
+
+    <title>{% block title %}{% endblock %}</title>
+</head>
+
+<body>
+    <header>
+        <nav>
+
+            <style>
+                nav,
+                footer {
+                    position: relative;
+                    width: 100%;
+                }
+
+                li {
+                    list-style-type: none;
+                }
+
+                #auth {
+                    margin-right: 20px;
+                }
+
+                h3 {
+                    color: midnightblue;
+                }
+
+                .post_form {
+                    width: 350px;
+                }
+            </style>
+
+            <div class="window">
+
+                <!-- Navbar -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <!-- Container wrapper -->
+                    <div class="container-fluid">
+                        <!-- Toggle button -->
+                        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+
+                        <!-- Collapsible wrapper -->
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <!-- Navbar brand -->
+                            <a class="navbar-brand mt-2 mt-lg-0" href="#">
+                                <img src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp" height="20" alt="MDB Logo" loading="lazy" />
+                            </a>
+                            <!-- Left links -->
+
+                            <!-- Left links -->
+                        </div>
+                        <!-- Collapsible wrapper -->
+
+
+                        <!-- Right elements -->
+                        <div class="d-flex align-items-">
+
+                            {% if request.user.is_authenticated %}
+
+                            <div style="position: absolute; left: 100px;">
+
+                                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'index'%}">Главная</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'businesses_list' request.user.id %}">Мои проекты</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'calendar' %}">Календарь</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'report' request.user.id %}">Отчет</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Инфографика</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+
+
+                            <div class="d-flex align-items-center">
+                                <a href="{% url 'profile' user.id %}" class="btn btn-primary" id="auth"> {% trans "Профиль" %} </a>
+                                <a href="{% url 'logout'%}" class="btn btn-primary" id="auth"> {% trans "Выйти" %} </a>
+
+                            </div>
+                        </div>
+
+
+
+                        {% else %}
+
+                        <div style="position: absolute; left: 100px;">
+
+
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="menu">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'index'%}">Главная</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">О сервисе</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Партнеры</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">Политика сервиса</a>
+                                </li>
+                            </ul>
+
+                        </div>
+
+
+
+
+                        <div class="d-flex align-items-center">
+                            <a href="{% url 'login'%}" class="btn btn-primary" id="auth"> {% trans "Войти" %} </a>
+                            <a href="{% url 'register'%}" class="btn btn-primary" id="auth"> {% trans "Регистрация" %} </a>
+
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <form style="display: flex; margin-right: 50px; flex-direction: row; gap: 10px;" action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_to }}">
+                        <select name="language" class="form-control form-control-sm" style="width: 120px">
+                          {% get_current_language as LANGUAGE_CODE %}
+                          {% get_available_languages as LANGUAGES %}
+                          {% get_language_info_list for LANGUAGES as languages %}
+                          {% for language in languages %}
+                              <option  value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                  {{ language.name_local }} ({{ language.code }})
+                              </option>
+                          {% endfor %}
+                        </select>
+                        <button class="btn btn-dark btn-sm">Сменить</button>
+                    </form>
+
+
+
+
+            </div>
+            </div>
+            <!-- Container wrapper -->
+            </nav>
+
+            <br>
+            <br>
+            <!-- Navbar -->
+
+
+
+        </nav>
+
+
+
+    </header>
+
 
 {% block body %}
 
 
- <style type="text/css">
-   BODY {
-    background: url(https://kartinkinaden.ru/uploads/posts/2020-07/1593808572_13-p-nyashnii-fon-18.jpg) repeat; 
-   }
- </style>
+<style type="text/css">
+    BODY {
+        background: url(https://kartinkinaden.ru/uploads/posts/2020-07/1593808572_13-p-nyashnii-fon-18.jpg) repeat;
+    }
+    
+    .textlist {
+        font-size: 17px;
+    }
+    
+    .calendar {
+        width: 90%;
+        margin: 30px;
+        font-size: 14px;
+        background-color: #fff;
+    }
+    
+    .calendar tr,
+    .calendar td {
+        border: 1px solid #4c0fae;
+    }
+    
+    .calendar th {
+        padding: 10px;
+        text-align: center;
+        font-size: 17px;
+    }
+    
+    .calendar td {
+        width: 200px;
+        height: 150px;
+        padding: 15px 0px 0px 5px;
+    }
+    
+    .month {
+        font-size: 20px;
+    }
+    
+    .date {
+        font-size: 18px;
+    }
+    
+    ul {
+        height: 100%;
+        padding: 0px 5px 0px 15px;
+    }
+    
+    a {
+        color: #035a67;
+        font-size: 18px;
+    }
+    
+    .left {
+        float: left;
+    }
+    
+    .right {
+        float: right;
+    }
+    
+    .btn {
+        outline: none;
+        color: black;
+        background-color: transparent;
+        box-shadow: 0 0 0 0;
+    }
+    
+    .clearfix {
+        margin: 15px;
+    }
+    
+    .form {
+        margin: auto;
+    }
+    
+    .form input,
+    .form select,
+    .form textarea {
+        border-radius: 5px;
+        border: 1px solid #17a2b8;
+        outline: none;
+        background: none;
+        padding: 5px;
+        width: 100%;
+    }
+</style>
 
-<div class="clearfix">
-    <a class="btn btn-info right" href="{% url 'logout' %}"> ВЫПУСТИ МЕНЯ </a>
-	<a class="btn btn-info right mr-2" href="{% url 'calendar' %}?{{ next_month }} "> Вперёд >> </a>
-    <a class="btn btn-info right mr-2" href="{% url 'calendar' %}?{{ prev_month }}"> << Назад </a>
-    <a class="btn btn-info right mr-2" href="{% url 'event_new' %}"> + Добавить дело </a>
+<div class="clearfix" style="position: absolute; left: 30%;">
+<a class="btn btn-info right mr-2" href="{% url 'calendar' %}?{{ next_month }} "> Вперёд >> </a>
+
+            <a class="btn btn-info right mr-2" href="{% url 'event_new' %}"> + Добавить событие </a>
+    <a class="btn btn-info right mr-2" href="{% url 'calendar' %}?{{ prev_month }}">
+        << Назад </a>
+
+
+
 </div>
+    <br><br>
 <div style="color: #092936;">
     {{ calendar }}
 </div>
-
 
 
 {% endblock %}

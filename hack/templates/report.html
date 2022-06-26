@@ -1,58 +1,57 @@
-{% extends 'base.html' %}
-{% load i18n %}
-{% block title %}{% trans "ДОХОДЫ" %}{% endblock %}
-{% block body %}
-<table> ДОХОДЫ
-        <th> Наименование </th>
-        <th> Сумма </th>
-        {% for i in income %}
-            <tr>
-            {% for name, summa in i.items %}
-            {% if name == 'name' %}
-            <td> {{ summa }}</td>
-        {% endif %}
-        {% if name == 'summa' %}
-            <td> {{ summa }}</td>
-        {% endif %}
-        {% endfor %}
-            </tr>
-    {% endfor %}
-<tr>
-    <td>ИТОГО</td>
-    <td>{{ total_income }}</td>
-</tr>
-</table>
-<table>
-АСХОДЫ
-<th> Наименование </th>
-        <th> Сумма </th>
-        {% for i in expense %}
-            <tr>
-            {% for name, summa in i.items %}
-            {% if name == 'name' %}
-            <td> {{ summa }}</td>
-        {% endif %}
-        {% if name == 'summa' %}
-            <td> {{ summa }}</td>
-        {% endif %}
-        {% endfor %}
-            </tr>
-    {% endfor %}
-<tr>
-    <td>ИТОГО</td>
-    <td>{{ total_expense }}</td>
-</tr>
-</table>
-    <h1>ПРИБЫЛЬ : {{ total }} </h1>
+{% extends 'base.html' %} {% load i18n %} {% block title %}{% trans "ДОХОДЫ" %}{% endblock %} {% block body %}
 
-<form method="POST">
+{% load static %}
+<h3> ДОХОДЫ </h3>
+<table class="table table-striped">
+    <th> Наименование </th>
+    <th> Сумма </th>
+    {% for i in income %}
+    <tr>
+        {% for name, summa in i.items %} {% if name == 'name' %}
+        <td> {{ summa }}</td>
+        {% endif %} {% if name == 'summa' %}
+        <td> {{ summa }}</td>
+        {% endif %} {% endfor %}
+    </tr>
+    {% endfor %}
+    <tr>
+        <td>ИТОГО</td>
+        <td>{{ total_income }}</td>
+    </tr>
+</table>
+
+<br>
+<h3>РАСХОДЫ</h3>
+<table class="table table-striped">
+
+    <th> Наименование </th>
+    <th> Сумма </th>
+    {% for i in expense %}
+    <tr>
+        {% for name, summa in i.items %} {% if name == 'name' %}
+        <td> {{ summa }}</td>
+        {% endif %} {% if name == 'summa' %}
+        <td> {{ summa }}</td>
+        {% endif %} {% endfor %}
+    </tr>
+    {% endfor %}
+    <tr>
+        <td>ИТОГО</td>
+        <td>{{ total_expense }}</td>
+    </tr>
+</table>
+<h3>ПРИБЫЛЬ : {{ total }} </h3>
+    <form method="POST">
     {% csrf_token %}
-{#    <input hidden name=" income" value="{{ income }}">#}
-{#    {{ income }}#}
-{#    <input hidden name="id" value="{{ total_income }}">#}
-{#    <input hidden name="id" value="{{ expense }}">#}
-{#    <input hidden name="id" value="{{ total_expense }}">#}
-{#    <input hidden name="id" value="{{ total }}">#}
-    <button class="submit">{% trans "Купить" %}</button>
+    <button class="btn btn-primary">{% trans "Выгрузить отчёт" %}</button>
 </form>
+    <hr>
+    <div id = "infographics"></div>
+    <h4>График прибыли и убытка</h4>
+<img src="{{path_img}}">
+    <h4>График статей доходов</h4>
+    <img src="{{path_img_income}}">
+    <h4>График статей расходов</h4>
+    <img src="{{path_img_exp}}">
+
 {% endblock %}
